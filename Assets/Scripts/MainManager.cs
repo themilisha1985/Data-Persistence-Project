@@ -16,20 +16,23 @@ public class MainManager : MonoBehaviour
 
     private bool m_Started = false;
     public int m_Points;
-    public int _bestScore;
+    //public int _bestScore;
 
     public Text bestScore;
 
     private bool m_GameOver = false;
 
-    public static MainManager Instance;
+    //public static MainManager Instance;
+
+    //public int testPoint = 20;
+    //private int i;
 
 
     private void Awake()
     {
+
         
-        LoadScore();
-        bestScore.text = "Best Score: " + _bestScore;
+        bestScore.text = "Best Score: " + Goat.Instance.highScore ;
     }
     // Start is called before the first frame update
     void Start()
@@ -49,6 +52,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        Goat.Instance.LoadGoatData();
     }
 
     private void Update()
@@ -73,52 +77,74 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
-        
+        Goat.Instance.score = m_Points;
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
-        
+
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        _bestScore = m_Points;
-        SaveScore();
+        BestScoreAlg();
+        Goat.Instance.SaveGoatData(Goat.Instance.bestPlayer, Goat.Instance.highScore);
+        //_bestScore = m_Points;
+
     }
 
-    [System.Serializable]
-    class SaveData
+     public void BestScoreAlg()
     {
-        public int _bestScore;
-        public int m_Points;
-    }
-    public void SaveScore()
-    {
-        SaveData data = new SaveData();
+      if(Goat.Instance.score >= Goat.Instance.highScore)
+        {
+            Goat.Instance.highScore = Goat.Instance.score;
+        }
         
-        data._bestScore = _bestScore;
-        data.m_Points = m_Points;
-        if (_bestScore >= m_Points)
-        {
-            string json = JsonUtility.ToJson(data);
-            File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-        }
     }
 
-    public void LoadScore()
+    public void SetBestPlayer()
     {
-        string path = Application.persistentDataPath + "/savefile.json";
-        if(File.Exists(path))
+        if (Goat.Instance.bestPlayer == null && Goat.Instance.highScore == 0)
         {
-            string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson < SaveData > (json);
-
-            _bestScore = data._bestScore;
+            bestScore.text = "  ";
+        }
+        else
+        {
+            bestScore.text = "Best Score: " + Goat.Instance.bestPlayer + ": " + Goat.Instance.highScore;
         }
     }
+
+    //[System.Serializable]
+    //class SaveData
+    //{
+    //    public int _bestScore;
+    //    public int m_Points;
+    //}
+    //public void SaveScore()
+    //{
+    //    SaveData data = new SaveData();
+
+    //    data._bestScore = _bestScore;
+
+    //    string json = JsonUtility.ToJson(data);
+    //    File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+
+    //}
+
+    //public void LoadScore()
+    //{
+    //    string path = Application.persistentDataPath + "/savefile.json";
+    //    if(File.Exists(path))
+    //    {
+
+    //        string json = File.ReadAllText(path);
+    //        SaveData data = JsonUtility.FromJson < SaveData > (json);
+
+    //       _bestScore = data._bestScore;
+
 }
+    
