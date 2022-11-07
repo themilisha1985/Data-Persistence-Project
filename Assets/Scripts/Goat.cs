@@ -20,9 +20,31 @@ public class Goat : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-
+       if (MenuManager.Instance.playerInput != null)
+       {
+         playerName = MenuManager.Instance.playerInput.text;
+       }
+       else
+       {
+           bestPlayer = playerName;
+       }
     }
+    private void Start()
+    {
+        
+    }
+    //public void CheckBestPlayer()
+    //{
+    //    if (Goat.Instance.score >= Goat.Instance.highScore)
+    //    {
+    //        Goat.Instance.bestPlayer = Goat.Instance.playerName;
+    //        Goat.Instance.highScore = Goat.Instance.score;
+    //    }
+    //    Goat.Instance.SaveGoatData(Goat.Instance.bestPlayer, Goat.Instance.highScore);
 
+    //}
+
+    
 
     [System.Serializable]
 
@@ -32,11 +54,18 @@ public class Goat : MonoBehaviour
         public int saveScore;
     }
 
-    public void SaveGoatData(string bestPlayer, int highScore)
+    public void SaveGoatData(int highScore)
     {
         SaveData data = new SaveData();
         data.saveScore = highScore;
-        data.savePlayer = bestPlayer;
+        
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+    public void SaveGoatName(string playerName)
+    {
+        SaveData data = new SaveData();
+        data.savePlayer = bestPlayer ;
         string json = JsonUtility.ToJson(data);
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
@@ -44,13 +73,26 @@ public class Goat : MonoBehaviour
     public void LoadGoatData()
     {
         string path = Application.persistentDataPath + "/savefile.json";
-        if(File.Exists(path))
+        if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
             SaveData data = JsonUtility.FromJson<SaveData>(json);
-            bestPlayer = data.savePlayer;
+            
             highScore = data.saveScore;
         }
     }
 
+    public void LoadGoatName()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            bestPlayer = data.savePlayer;
+            
+        }
+    }
+
+    
 }

@@ -3,51 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.IO;
+using TMPro;
 
-public class MainManager : MonoBehaviour
+public class NewMainManager : MonoBehaviour
 {
-    public static MainManager Instance;
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public TMP_Text ScoreText;
+    public TMP_Text PlayerName;
+    public TMP_Text BestScore;
     public GameObject GameOverText;
 
     private bool m_Started = false;
-    public int m_Points;
-   
-    public Text bestScore;
-    public Text currentPlayer;
-
-    
-    public string userName;
+    private int m_Points;
 
     private bool m_GameOver = false;
 
-   
-    private void Awake()
-    {
-        Instance = this;
-        //Goat.Instance.LoadGoatData();
 
-        //MenuManager.Instance.LoadPlayerName(userName);
-    }
     // Start is called before the first frame update
     void Start()
     {
-
-
-       
-
-        
-        //Goat.Instance.LoadGoatData();
-        //Goat.Instance.LoadGoatName();
-       // currentPlayer.text = MenuManager.Instance.userName.text;
-
-       // bestScore.text = "Best Score: " + Goat.Instance.highScore + " " + "Player: " + currentPlayer.text;
-        m_Points = 0;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
 
@@ -62,7 +39,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
-       
+        PlayerName.text = "Player Name: " + EliteList.Instance.playerName;
+        SetBestPlayer();
     }
 
     private void Update()
@@ -87,52 +65,44 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
-        Goat.Instance.score = m_Points;
-        
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
-
+        EliteList.Instance.score = m_Points;
     }
 
     public void GameOver()
     {
         m_GameOver = true;
+        CheckBestPlayer();
         GameOverText.SetActive(true);
-        BestScoreAlg();
-        Goat.Instance.SaveGoatData(Goat.Instance.highScore);
-        //Goat.Instance.SaveGoatName(currentPlayer.text);
-        //_bestScore = m_Points;
-
     }
-
-     public void BestScoreAlg()
+    public void StartMenu()
     {
-      if(Goat.Instance.score >= Goat.Instance.highScore)
-        {
-            Goat.Instance.bestPlayer = Goat.Instance.playerName;
-            Goat.Instance.highScore = Goat.Instance.score;
-        }
-        Goat.Instance.SaveGoatName(Goat.Instance.bestPlayer);
+        SceneManager.LoadScene(0);
     }
-
+    public void CheckBestPlayer()
+    {
+        if (EliteList.Instance.score >= EliteList.Instance.bestScore)
+        {   
+            EliteList.Instance.bestPlayer = EliteList.Instance.playerName;
+            EliteList.Instance.bestScore = EliteList.Instance.score;
+        }
+        EliteList.Instance.SaveWinnerData(EliteList.Instance.bestPlayer, EliteList.Instance.bestScore);
+    }
 
     public void SetBestPlayer()
     {
-        if (MenuManager.Instance.userName == null && Goat.Instance.highScore == 0)
+        if (EliteList.Instance.bestPlayer == null && EliteList.Instance.bestScore == 0)
         {
-            bestScore.text = "  ";
+            BestScore.text = "  ";
         }
         else
         {
-            bestScore.text = "Best Score: " + Goat.Instance.bestPlayer + ": " + Goat.Instance.highScore;
+            BestScore.text = "Best Score: " + EliteList.Instance.bestPlayer + ": " + EliteList.Instance.bestScore;
         }
     }
-
-    
-
 }
-    
